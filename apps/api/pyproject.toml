@@ -1,0 +1,44 @@
+[project]
+name = "tova-api"
+version = "0.1.0"
+description = "TOVA local-first orchestration API"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+  "aiosqlite>=0.20",
+  "alembic>=1.14",
+  "fastapi>=0.115",
+  "httpx>=0.28",
+  "pydantic-settings>=2.7",
+  "python-frontmatter>=1.1",
+  "python-multipart>=0.0.32",
+  "pyyaml>=6.0",
+  "sqlalchemy[asyncio]>=2.0",
+  "uvicorn[standard]>=0.34",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.14",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.25",
+  "ruff>=0.9",
+  "types-pyyaml>=6.0.12.20260518",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]

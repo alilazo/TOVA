@@ -1,0 +1,42 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f1f1f;
+  background: #f7f7f5;
+}
+
+main {
+  max-width: 40rem;
+  margin: 3rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #d9d9d4;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 1.25rem;
+  color: #4a4a46;
+}
+
+button {
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  color: #fff;
+  background: #1f1f1f;
+  border: 1px solid #1f1f1f;
+}
+
+button:focus-visible {
+  outline: 2px solid #1f1f1f;
+  outline-offset: 2px;
+}

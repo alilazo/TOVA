@@ -1,0 +1,11 @@
+{
+  "name": "@tova/api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "uv run uvicorn app.main:app --reload --port 8000",
+    "test": "uv run pytest",
+    "lint": "uv run ruff check .",
+    "typecheck": "uv run mypy app"
+  }
+}

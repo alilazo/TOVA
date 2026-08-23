@@ -1,0 +1,3 @@
+{
+  "objective": "Make the Count button on index.html increment a visible number each time it is activated. Keep the Welcome heading. The button must remain keyboard-usable. After the change, confirm the count starts at 0 and increases by 1 per click."
+}

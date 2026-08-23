@@ -1,0 +1,64 @@
+{
+  "started_at": 1785085162.0412123,
+  "project_root": "C:\\Users\\lazoa\\AppData\\Local\\Temp\\tova-live-smoke-1785085162",
+  "runtime_status": {
+    "state": "connected",
+    "provider": "lm-studio",
+    "version": "0.1.0",
+    "selected_profile_id": "profile_683b765dd3ca4e48a28dd03af8385fd0",
+    "selected_model": "qwen/qwen3.6-35b-a3b"
+  },
+  "project": {
+    "id": "project_8b2d4d4410974cb2960a57b9aa3be037",
+    "name": "tova-live-smoke-1785085162",
+    "root": "C:\\Users\\lazoa\\AppData\\Local\\Temp\\tova-live-smoke-1785085162"
+  },
+  "mission_create_status": 200,
+  "mission": {
+    "id": "mission_05c037aeb4bb4e3899ac02516adf9601",
+    "project_id": "project_8b2d4d4410974cb2960a57b9aa3be037",
+    "objective": "Create a small typed application with a README and tests. Use observable repository tools, request approval before commands, and finish only after verification.",
+    "project_root": "C:\\Users\\lazoa\\AppData\\Local\\Temp\\tova-live-smoke-1785085162",
+    "model_profile_id": "profile_683b765dd3ca4e48a28dd03af8385fd0",
+    "model": "qwen/qwen3.6-35b-a3b",
+    "status": "created"
+  },
+  "mission_start_status": 200,
+  "mission_started": {
+    "id": "mission_05c037aeb4bb4e3899ac02516adf9601",
+    "project_id": "project_8b2d4d4410974cb2960a57b9aa3be037",
+    "objective": "Create a small typed application with a README and tests. Use observable repository tools, request approval before commands, and finish only after verification.",
+    "project_root": "C:\\Users\\lazoa\\AppData\\Local\\Temp\\tova-live-smoke-1785085162",
+    "model_profile_id": "profile_683b765dd3ca4e48a28dd03af8385fd0",
+    "model": "qwen/qwen3.6-35b-a3b",
+    "status": "running"
+  },
+  "mission_latest": {
+    "id": "mission_05c037aeb4bb4e3899ac02516adf9601",
+    "project_id": "project_8b2d4d4410974cb2960a57b9aa3be037",
+    "objective": "Create a small typed application with a README and tests. Use observable repository tools, request approval before commands, and finish only after verification.",
+    "project_root": "C:\\Users\\lazoa\\AppData\\Local\\Temp\\tova-live-smoke-1785085162",
+    "model_profile_id": "profile_683b765dd3ca4e48a28dd03af8385fd0",
+    "model": "qwen/qwen3.6-35b-a3b",
+    "status": "running"
+  },
+  "event_counts": {
+    "mission.created": 1,
+    "mission.started": 1,
+    "mission.analysis.started": 1,
+    "model.request.started": 1
+  },
+  "approvals": [],
+  "accepted_approvals": [],
+  "project_entries": [],
+  "finished_at": 1785085343.9493105,
+  "duration_seconds": 181.9080982208252,
+  "checks": {
+    "runtime_connected": true,
+    "model_request_events": true,
+    "staff_assigned": false,
+    "file_events": false,
+    "approvals_gated": false,
+    "terminal_status": false
+  }
+}

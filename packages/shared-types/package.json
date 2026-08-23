@@ -1,0 +1,7 @@
+{
+  "name": "@tova/shared-types",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared TOVA domain types; package extraction begins in Phase 2."
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@tova/event-contracts",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Versioned TOVA event schemas; package extraction begins in Phase 2."
+}
