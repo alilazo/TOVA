@@ -33,7 +33,11 @@ review, and QA.
 
 You keep the model. TOVA gives it a roster, a floor, and a chain of command.
 
-**Created by Amado Lazo** · [LinkedIn](https://www.linkedin.com/in/amado-lazo/) · [Portfolio](https://amadolazo.com/)
+Created by **Amado Lazo**. If TOVA helps you ship, a coffee keeps the lights on.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/amado-lazo/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-111827?style=flat-square)](https://amadolazo.com/)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=000000)](https://www.buymeacoffee.com/amadolazo)
 
 ## Why a team beats one chat
 
