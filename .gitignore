@@ -3,7 +3,6 @@ node_modules/
 dist/
 *.exe
 *.db-journal
-.cursor/
 coverage/
 playwright-report/
 test-results/
@@ -24,3 +23,11 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+
+# Local editor and agent tooling — these often contain this machine's paths
+.cursor/
+.codex/
+.superpowers/
+.agents/
+.claude/
+docs/superpowers/

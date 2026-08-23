@@ -53,7 +53,7 @@ def test_list_prunes_missing_and_pytest_ephemeral_roots(tmp_path: Path) -> None:
     store = RecentProjectsStore(tmp_path / "recent-projects.json")
     store.record(ProjectRecord(id="project_keep", name="real-app", root=str(keep)))
 
-    ephemeral = tmp_path / "pytest-of-lazoa" / "pytest-1" / "test_mission_routes_create_con0"
+    ephemeral = tmp_path / "pytest-of-ci" / "pytest-1" / "test_mission_routes_create_con0"
     ephemeral.mkdir(parents=True)
     store._save(  # noqa: SLF001 - seed polluted file intentionally
         [

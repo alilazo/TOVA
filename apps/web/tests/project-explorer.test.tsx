@@ -32,7 +32,7 @@ describe("ProjectExplorer", () => {
         project={{
           id: "project_1",
           name: "TOVA test",
-          root: "F:\\Programming Projects\\TOVA test",
+          root: "C:\\Projects\\sample-app",
         }}
         activeFile={null}
         onOpenFile={() => undefined}
@@ -44,7 +44,7 @@ describe("ProjectExplorer", () => {
     expect(screen.queryByLabelText("Active project")).not.toBeInTheDocument()
     expect(screen.queryByText("TOVA test")).not.toBeInTheDocument()
     expect(
-      screen.queryByText("F:\\Programming Projects\\TOVA test"),
+      screen.queryByText("C:\\Projects\\sample-app"),
     ).not.toBeInTheDocument()
   })
 
@@ -55,7 +55,7 @@ describe("ProjectExplorer", () => {
         project={{
           id: "project_1",
           name: "TOVA test",
-          root: "F:\\Programming Projects\\TOVA test",
+          root: "C:\\Projects\\sample-app",
         }}
         activeFile={null}
         onOpenFile={() => undefined}
@@ -75,7 +75,7 @@ describe("ProjectExplorer", () => {
       value: { writeText },
     })
 
-    await copyProjectFilePath("F:\\Programming Projects\\TOVA test")
-    expect(writeText).toHaveBeenCalledWith("F:\\Programming Projects\\TOVA test")
+    await copyProjectFilePath("C:\\Projects\\sample-app")
+    expect(writeText).toHaveBeenCalledWith("C:\\Projects\\sample-app")
   })
 })

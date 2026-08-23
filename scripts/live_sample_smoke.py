@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -12,7 +13,7 @@ BASE = os.environ.get("TOVA_API_BASE", "http://127.0.0.1:8000").rstrip("/")
 OUT = Path(
     os.environ.get(
         "TOVA_SMOKE_OUT",
-        r"C:\Users\lazoa\AppData\Local\Temp\tova-mvp-smoke\last-mission.json",
+        str(Path(tempfile.gettempdir()) / "tova-mvp-smoke" / "last-mission.json"),
     )
 )
 PROJECT_ROOT = os.environ.get("TOVA_SMOKE_PROJECT_ROOT", "").strip()
