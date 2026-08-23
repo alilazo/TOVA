@@ -1,11 +1,12 @@
 <div align="center">
 
 ```text
-  ______   ______   __   __   ______
- /\__  _\ /\  __ \ /\ \ / /  /\  __ \
- \/_/\ \/ \ \ \/\ \\ \ \'/   \ \  __ \
-    \ \_\  \ \_____\\ \__|    \ \_\ \_\
-     \/_/   \/_____/ \/_/      \/_/\/_/
+########    ######    ##    ##    ######
+########   ##    ##   ##    ##   ##    ##
+   ##      ##    ##   ##    ##   ########
+   ##      ##    ##    ##  ##    ##    ##
+   ##      ##    ##     ####     ##    ##
+   ##       ######       ##      ##    ##
                                  TOVA
 ```
 
@@ -32,6 +33,8 @@ scopes the mission, then calls the right specialists for research, implementatio
 review, and QA.
 
 You keep the model. TOVA gives it a roster, a floor, and a chain of command.
+
+**Created by Amado Lazo** · [LinkedIn](https://www.linkedin.com/in/amado-lazo/) · [Portfolio](https://amadolazo.com/)
 
 ## Why a team beats one chat
 
@@ -279,6 +282,10 @@ Read the nearest `AGENTS.md`. Preserve event compatibility. Write failing
 tests before implementation. Keep components focused. Include fresh
 verification evidence. Do not add hidden-reasoning displays or weaken the
 default-deny tool boundary.
+
+## Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=alilazo/TOVA&type=Date)](https://www.star-history.com/#alilazo/TOVA&Date)
 
 ## License
 
