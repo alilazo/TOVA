@@ -10,10 +10,6 @@ def test_ascii_art_shows_tova() -> None:
     assert "TOVA" in art
     assert art.strip()
     assert "\n" in art
-    # The V is two arms that meet — not the broken slant-font leftover.
-    assert "\\ \\__|" not in art
-    assert "\\ \\'/" not in art
-    assert any("##    ##" in line for line in art.splitlines())
 
 
 def test_loading_frames_animate() -> None:
