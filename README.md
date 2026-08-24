@@ -138,6 +138,11 @@ in the live editor, and leave a Work Log you can inspect.
 
 ![Lina writing script.js on the Team Floor while the rest of the roster stays visible](docs/screenshots/team-floor-working.png)
 
+Staff cannot hit a local URL or run a host command until you approve that
+exact request.
+
+![Ava requesting approval to inspect http://127.0.0.1:8000 for a browser audit](docs/screenshots/approval-browser-audit.png)
+
 When QA finishes, the verdict is itemized — pass or fail against the mission's
 acceptance criteria, with artifacts you can open.
 
@@ -280,6 +285,8 @@ escapes. Every command needs an explicit approval, runs without stdin in a
 project-contained working directory, gets a sanitized environment, and has
 timeout and output limits. Provider credentials stay server-side and never
 appear in activity events.
+
+![Command approval dialog before TOVA will run npx playwright test](docs/screenshots/approval-command.png)
 
 ## Honest limits
 
