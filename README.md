@@ -58,6 +58,8 @@ hands work to Maya, Ethan, Lina, Noah, Ava, or Dr. Rao. You approve plans and
 commands. The Team Floor shows who is active. Pause, resume, or cancel between
 steps.
 
+![TOVA Team Floor waiting on Alex's plan with the engineering roster and live activity](docs/screenshots/team-floor-plan.png)
+
 ## Build any HiPo team you can define
 
 The shipping roster is a software-engineering company. That is a starting
@@ -117,6 +119,8 @@ handoff_targets:
 | **Ava Patel** | QA Tester | Acceptance criteria, tests, reproducible evidence |
 | **Dr. Priya Rao** | Advisor | Architecture challenges and material risk |
 
+![HiPo Staff directory with seven named specialists](docs/screenshots/hipo-staff.png)
+
 ```mermaid
 flowchart LR
   You[You] --> Mission[Mission]
@@ -126,6 +130,18 @@ flowchart LR
   Specialists --> Files[Project files]
   Specialists --> Log[Work Log · events]
 ```
+
+## Team Floor
+
+The Team Floor is the mission workspace. Staff appear in sequence, write files
+in the live editor, and leave a Work Log you can inspect.
+
+![Lina writing script.js on the Team Floor while the rest of the roster stays visible](docs/screenshots/team-floor-working.png)
+
+When QA finishes, the verdict is itemized — pass or fail against the mission's
+acceptance criteria, with artifacts you can open.
+
+![Ava's QA verdict listing eight passed acceptance checks](docs/screenshots/team-floor-qa.png)
 
 ## Quick start
 
@@ -148,6 +164,9 @@ work; these are the ones actually proven on this hardware.
 2. Start **TOVA** from the Start Menu. A command window opens with the TOVA
    banner, a loading line, then LM Studio status. The app serves the UI at
    `http://127.0.0.1:8000/` and opens that address in your browser.
+
+   ![TOVA console banner serving the UI at 127.0.0.1:8000](docs/screenshots/console-launch.png)
+
 3. Keep the command window open while you work. Closing it stops TOVA and
    frees the port.
 4. In LM Studio, start Local Server and load a model (default
