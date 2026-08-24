@@ -37,7 +37,12 @@ Created by **Amado Lazo**. If TOVA helps you ship, a coffee keeps the lights on.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/amado-lazo/)
 [![Portfolio](https://img.shields.io/badge/Portfolio-111827?style=flat-square)](https://amadolazo.com/)
-[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=000000)](https://www.buymeacoffee.com/amadolazo)
+
+<p>
+  <a href="https://www.buymeacoffee.com/amadolazo">
+    <img src="docs/screenshots/buy-me-a-coffee.png" alt="Buy me a coffee" width="217" height="60" />
+  </a>
+</p>
 
 ## Why a team beats one chat
 
@@ -321,6 +326,19 @@ Read the nearest `AGENTS.md`. Preserve event compatibility. Write failing
 tests before implementation. Keep components focused. Include fresh
 verification evidence. Do not add hidden-reasoning displays or weaken the
 default-deny tool boundary.
+
+## Buy me a coffee
+
+TOVA is free and local-first. If it helps you get more out of your own models,
+you can support the work here:
+
+<p>
+  <a href="https://www.buymeacoffee.com/amadolazo">
+    <img src="docs/screenshots/buy-me-a-coffee.png" alt="Buy me a coffee" width="217" height="60" />
+  </a>
+</p>
+
+https://www.buymeacoffee.com/amadolazo
 
 ## Star history
 
