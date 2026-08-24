@@ -132,6 +132,15 @@ flowchart LR
 LM Studio is **not** bundled. Install it, start **Local Server**, and load a
 model before you send a mission.
 
+Suggested models (tested by Amado Lazo on an **RTX 4060 Ti 16GB**):
+
+- **qwen3.6-35b-a3b**
+- **qwen-3.5-27b**
+- **Qwen3.8-27B**
+
+Those three run extremely well in TOVA on that card. Other local models can
+work; these are the ones actually proven on this hardware.
+
 ### Windows app
 
 1. Build the installer (see [Windows package](#windows-package)) or run a
@@ -142,7 +151,8 @@ model before you send a mission.
 3. Keep the command window open while you work. Closing it stops TOVA and
    frees the port.
 4. In LM Studio, start Local Server and load a model (default
-   `http://127.0.0.1:1234/v1`).
+   `http://127.0.0.1:1234/v1`). Prefer **qwen3.6-35b-a3b**, **qwen-3.5-27b**,
+   or **Qwen3.8-27B** if you have about 16GB VRAM.
 5. When TOVA shows **Connected**, send the canned first mission with
    **Send to Team**.
 6. Accept Alex's plan. Approve commands or browser audits when asked.
@@ -178,7 +188,7 @@ Copy [`.env.example`](.env.example) to `.env` if you want a pinned model:
 
 ```text
 TOVA_LM_STUDIO_BASE_URL=http://127.0.0.1:1234/v1
-TOVA_LM_STUDIO_MODEL=your-local-model
+TOVA_LM_STUDIO_MODEL=qwen/qwen3.6-35b-a3b
 TOVA_LM_STUDIO_API_TOKEN=
 ```
 
