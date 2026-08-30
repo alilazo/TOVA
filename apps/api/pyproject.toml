@@ -2,7 +2,7 @@
 name = "tova-api"
 version = "0.1.0"
 description = "TOVA local-first orchestration API"
-license = "MIT"
+license = "AGPL-3.0-only"
 requires-python = ">=3.12"
 dependencies = [
   "aiosqlite>=0.20",

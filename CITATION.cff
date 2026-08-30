@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: TOVA
+message: If you use TOVA, please cite it using these metadata.
+type: software
+authors:
+  - family-names: Lazo
+    given-names: Amado
+    website: "https://amadolazo.com/"
+    alias: alilazo
+repository-code: "https://github.com/alilazo/TOVA"
+url: "https://amadolazo.com/"
+abstract: >-
+  TOVA (Team-Orchestrated Visual Agents) is a local-first development
+  environment that runs specialist HiPo-Staff teams on the user's own
+  local language models instead of one generic chat assistant.
+keywords:
+  - TOVA
+  - HiPo-Staff
+  - local-first
+  - LLM
+  - LM Studio
+  - software agents
+license: AGPL-3.0-only
+version: 0.1.0
+date-released: "2026-08-30"

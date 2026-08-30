@@ -13,11 +13,13 @@
 
 **Team-Orchestrated Visual Agents**
 
+> Taking your local LLM code to the next level.
+
 A local-first development environment for people who run their own models
 and want a full software team on the other side of the prompt — not one
 generic chat.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-0f172a.svg)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-0f172a.svg)](LICENSE)
 [![Local-first](https://img.shields.io/badge/runtime-local--first-1d4ed8.svg)](#quick-start)
 [![LM Studio](https://img.shields.io/badge/models-LM%20Studio-059669.svg)](#quick-start)
 [![Windows](https://img.shields.io/badge/package-Windows-64748b.svg)](#windows-package)
@@ -327,6 +329,11 @@ tests before implementation. Keep components focused. Include fresh
 verification evidence. Do not add hidden-reasoning displays or weaken the
 default-deny tool boundary.
 
+By submitting a contribution, you certify that you have the right to
+submit it (see the [Developer Certificate of Origin](https://developercertificate.org/))
+and you license your work to the project under the GNU Affero General
+Public License v3.0. You do not transfer the TOVA or HiPo-Staff marks.
+
 ## Buy me a coffee
 
 TOVA is free and local-first. If it helps you get more out of your own models,
@@ -344,6 +351,17 @@ https://www.buymeacoffee.com/amadolazo
 
 [![Star History Chart](https://api.star-history.com/svg?repos=alilazo/TOVA&type=Date)](https://www.star-history.com/#alilazo/TOVA&Date)
 
-## License
+## License and marks
 
-TOVA is available under the [MIT License](LICENSE).
+Copyright (c) 2026 **Amado Lazo**. Created by Amado Lazo.
+
+TOVA is free software under the [GNU Affero General Public License v3.0](LICENSE).
+You may run it, study it, and share it. If you distribute TOVA or run a
+modified version as a network service, you must provide the complete
+corresponding source under the same license. Proprietary closed-source
+copies are not allowed.
+
+The AGPL licenses the **code**. It does not license the names **TOVA** or
+**HiPo-Staff**. Forks must use a different product name. See
+[NOTICE](NOTICE), [TRADEMARKS.md](TRADEMARKS.md), and
+[CITATION.cff](CITATION.cff).
