@@ -36,4 +36,43 @@ describe("ProjectPathDialog", () => {
       /Path is not an existing directory.*Choose a folder you own/i,
     )
   })
+
+  it("notifies onOpened before refetching the active project", async () => {
+    const project = {
+      id: "project_new",
+      name: "fresh",
+      root: "F:\\Projects\\fresh",
+    }
+    openProject.mockResolvedValue(project)
+    const user = userEvent.setup()
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    const order: string[] = []
+    const invalidate = vi.spyOn(client, "invalidateQueries").mockImplementation((options) => {
+      const key = JSON.stringify(options)
+      if (key.includes("active-project")) order.push("invalidate-active")
+      return Promise.resolve()
+    })
+    render(
+      <QueryClientProvider client={client}>
+        <ProjectPathDialog
+          open
+          mode="create"
+          onOpenChange={() => undefined}
+          onOpened={() => {
+            order.push("opened")
+          }}
+        />
+      </QueryClientProvider>,
+    )
+
+    await user.type(screen.getByLabelText("Folder path"), "F:\\Projects\\fresh")
+    await user.click(screen.getByRole("button", { name: "Create and open" }))
+    await screen.findByRole("button", { name: "Create and open" })
+
+    expect(order[0]).toBe("opened")
+    expect(order).not.toContain("invalidate-active")
+    invalidate.mockRestore()
+  })
 })

@@ -10,7 +10,7 @@ department: Product Engineering
 seniority: Senior
 avatar: stock/black-white-pixel-art-girl-without-glasses-64x64.png
 status: available
-description: Builds accessible React interfaces and polished interactions.
+description: Builds accessible HTML, CSS, and JavaScript front-end interfaces and polished interactions.
 model_profile: frontend-default
 temperature: 0.25
 max_context_tokens: 64000

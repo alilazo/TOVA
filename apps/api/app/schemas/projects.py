@@ -40,6 +40,27 @@ class ProjectEntry(BaseModel):
     kind: Literal["file", "dir"]
 
 
+class ProjectEntryCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    path: str = Field(min_length=1)
+    kind: Literal["file", "dir"]
+
+
+class ProjectEntryMoveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_path: str = Field(min_length=1)
+    destination_path: str = Field(min_length=1)
+
+
+class ProjectEntryDeleteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    path: str = Field(min_length=1)
+    recursive: bool = False
+
+
 class ProjectFile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

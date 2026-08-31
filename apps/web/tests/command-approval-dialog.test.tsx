@@ -112,4 +112,27 @@ describe("CommandApprovalDialog", () => {
       screen.getByRole("button", { name: /Approve browser audit/i }),
     ).toBeInTheDocument()
   })
+
+  it("focuses Approve instead of Reject when a browser audit opens", async () => {
+    vi.mocked(missionApi.listApprovals).mockResolvedValue([
+      {
+        id: "approval_browser_focus",
+        status: "pending",
+        request: {
+          kind: "browser_audit",
+          mission_id: "mission-1",
+          staff_id: "staff_ava",
+          staff_display_name: "Ava",
+          url: "http://127.0.0.1:5173",
+          purpose: "Inspect generated UI",
+          acceptance_criteria: ["Button is visible"],
+        },
+      },
+    ])
+    renderDialog()
+
+    const approve = await screen.findByRole("button", { name: /Approve browser audit/i })
+    expect(approve).toHaveFocus()
+    expect(screen.getByRole("button", { name: "Reject" })).not.toHaveFocus()
+  })
 })

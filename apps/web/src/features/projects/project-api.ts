@@ -61,6 +61,42 @@ export function listProjectEntries(projectId: string, path = ".") {
   return apiRequest<ProjectEntry[]>(`/api/projects/${projectId}/entries?${query}`)
 }
 
+export function createProjectEntry(
+  projectId: string,
+  path: string,
+  kind: ProjectEntry["kind"],
+) {
+  return apiRequest<ProjectEntry>(`/api/projects/${projectId}/entries`, {
+    method: "POST",
+    body: JSON.stringify({ path, kind }),
+  })
+}
+
+export function moveProjectEntry(
+  projectId: string,
+  sourcePath: string,
+  destinationPath: string,
+) {
+  return apiRequest<ProjectEntry>(`/api/projects/${projectId}/entries`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      source_path: sourcePath,
+      destination_path: destinationPath,
+    }),
+  })
+}
+
+export function deleteProjectEntry(
+  projectId: string,
+  path: string,
+  recursive: boolean,
+) {
+  return apiRequest<ProjectEntry>(`/api/projects/${projectId}/entries`, {
+    method: "DELETE",
+    body: JSON.stringify({ path, recursive }),
+  })
+}
+
 export function searchProjectReferences(projectId: string, queryValue: string) {
   const query = new URLSearchParams({ query: queryValue })
   return apiRequest<ProjectEntry[]>(`/api/projects/${projectId}/references?${query}`)

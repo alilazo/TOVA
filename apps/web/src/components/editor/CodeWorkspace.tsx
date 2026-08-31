@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Braces, Check, X } from "lucide-react"
 
@@ -18,6 +18,7 @@ import {
   type MissionStatus,
   type StaffProfile,
 } from "@/types/domain"
+import { useUiStore } from "@/stores/ui-store"
 
 import { PixelAvatar } from "../staff/PixelAvatar"
 
@@ -47,15 +48,14 @@ export function CodeWorkspace({
   onProjectOpened,
 }: CodeWorkspaceProps) {
   const client = useQueryClient()
+  const currentProjectId = useRef(projectId)
+  useLayoutEffect(() => {
+    currentProjectId.current = projectId
+  }, [projectId])
   const [dialogMode, setDialogMode] = useState<"open" | "create" | null>(null)
-  const [draftByPath, setDraftByPath] = useState<Record<string, string>>({})
-  const [dirtyPaths, setDirtyPaths] = useState<Record<string, boolean>>({})
-  const [draftProjectId, setDraftProjectId] = useState(projectId)
-  if (draftProjectId !== projectId) {
-    setDraftProjectId(projectId)
-    setDraftByPath({})
-    setDirtyPaths({})
-  }
+  const draftByPath = useUiStore((state) => state.draftByPath)
+  const dirtyPaths = useUiStore((state) => state.dirtyPaths)
+  const setFileDraft = useUiStore((state) => state.setFileDraft)
   const fileQuery = useQuery({
     queryKey: ["project-file", projectId, activeFile],
     queryFn: () => readProjectFile(projectId!, activeFile!),
@@ -66,12 +66,22 @@ export function CodeWorkspace({
     : ""
   const dirty = activeFile ? Boolean(dirtyPaths[activeFile]) : false
   const save = useMutation({
-    mutationFn: () => writeProjectFile(projectId!, activeFile!, draft),
-    onSuccess: async () => {
-      if (!activeFile) return
-      setDirtyPaths((current) => ({ ...current, [activeFile]: false }))
-      await client.invalidateQueries({ queryKey: ["project-file", projectId, activeFile] })
-      await client.invalidateQueries({ queryKey: ["project-entries", projectId] })
+    mutationFn: (file: { projectId: string; path: string; content: string }) =>
+      writeProjectFile(file.projectId, file.path, file.content),
+    onSuccess: async (_file, submitted) => {
+      const currentState = useUiStore.getState()
+      if (
+        currentProjectId.current === submitted.projectId
+        && currentState.draftByPath[submitted.path] === submitted.content
+      ) {
+        currentState.markFileSaved(submitted.path)
+      }
+      await client.invalidateQueries({
+        queryKey: ["project-file", submitted.projectId, submitted.path],
+      })
+      await client.invalidateQueries({
+        queryKey: ["project-entries", submitted.projectId],
+      })
     },
   })
   const openSample = useMutation({
@@ -183,9 +193,7 @@ export function CodeWorkspace({
               value={draft}
               theme="vs"
               onChange={(value) => {
-                const next = value ?? ""
-                setDraftByPath((current) => ({ ...current, [activeFile]: next }))
-                setDirtyPaths((current) => ({ ...current, [activeFile]: true }))
+                setFileDraft(activeFile, value ?? "")
               }}
               options={{
                 minimap: { enabled: false },
@@ -209,7 +217,16 @@ export function CodeWorkspace({
       <footer className="editor-status">
         <span>
           {dirty ? (
-            <Button size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate()}>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={save.isPending}
+              onClick={() => save.mutate({
+                projectId,
+                path: activeFile,
+                content: draft,
+              })}
+            >
               Save
             </Button>
           ) : (

@@ -117,6 +117,21 @@ describe("missionEventReducer", () => {
     expect(projection.activeFile).toBe("script.js")
   })
 
+  it("marks in-flight activity completed when the mission finishes", () => {
+    const projection = [
+      event(1, "staff.test.started", {
+        tool: "qa.browser.audit",
+        url: "http://127.0.0.1:5173",
+        status: "testing",
+        summary: "Ava started browser audit",
+      }, "staff_ava"),
+      event(2, "mission.completed", { summary: "Done" }),
+    ].reduce(missionEventReducer, createInitialMissionProjection())
+
+    expect(projection.activity[0]?.status).toBe("completed")
+    expect(projection.activity.some((item) => item.status === "testing")).toBe(false)
+  })
+
   it("projects browser QA results into artifacts and staff status", () => {
     const projection = [
       event(1, "staff.test.started", {

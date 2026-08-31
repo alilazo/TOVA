@@ -290,3 +290,53 @@ async def test_browser_audit_default_executor_uses_threaded_subprocess(
 
     assert result.verdict == "pass"
     assert calls and calls[0][0] == "node"
+
+
+@pytest.mark.asyncio
+async def test_browser_audit_reuses_preview_url_and_skips_second_approval(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "index.html").write_text("<button>Hello</button>", encoding="utf-8")
+    registry = ApprovalRegistry()
+    executions: list[str] = []
+
+    async def execute(request: BrowserAuditRequest, output_dir: Path) -> BrowserAuditExecution:
+        executions.append(request.url)
+        (output_dir / "screenshot.png").write_bytes(b"png")
+        return BrowserAuditExecution(
+            ok=True,
+            data={
+                "url": request.url,
+                "title": "Sample",
+                "verdict": "pass",
+                "summary": "Page passed visual audit",
+                "screenshot_path": "screenshot.png",
+            },
+        )
+
+    runner = ApprovedBrowserAuditRunner(
+        ProjectWorkspace(tmp_path),
+        registry,
+        executor=execute,
+    )
+    first = asyncio.create_task(runner.run(_request("http://127.0.0.1:8000")))
+    await asyncio.sleep(0)
+    pending = registry.list_pending()
+    assert len(pending) == 1
+    preview_url = pending[0].request.url
+    await registry.accept(pending[0].id)
+    first_result = await first
+
+    second = await runner.run(_request("http://127.0.0.1:8000"))
+
+    assert first_result.verdict == "pass"
+    assert second.verdict == "pass"
+    assert executions == [preview_url, preview_url]
+    assert len(registry.list_pending()) == 0
+    accepted = [
+        record
+        for record in registry.list_for_mission("mission-browser")
+        if record.request.kind == "browser_audit"
+    ]
+    assert len(accepted) == 1
+

@@ -31,10 +31,9 @@ export function ProjectPathDialog({
   const mutation = useMutation({
     mutationFn: () => openProject(path.trim(), mode === "create"),
     onSuccess: async (project) => {
-      await client.invalidateQueries({ queryKey: ["active-project"] })
+      onOpened(project)
       await client.invalidateQueries({ queryKey: ["project-entries", project.id] })
       await client.invalidateQueries({ queryKey: ["recent-projects"] })
-      onOpened(project)
       onOpenChange(false)
       setPath("")
     },

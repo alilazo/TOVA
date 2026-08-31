@@ -344,6 +344,24 @@ describe("Phase 1 core components", () => {
     expect(screen.getByRole("status")).toHaveTextContent("No staff profiles are available")
   })
 
+  it("shows a planning state on Team Floor while a mission is starting", () => {
+    render(
+      <WorkspaceSidebar
+        panel="team-floor"
+        staff={staffProfiles}
+        staffLoading={false}
+        staffError={null}
+        runtimeStatus={undefined}
+        mission={null}
+        isStarting
+      />,
+    )
+
+    expect(screen.queryByText("No team workflow is active in this session.")).not.toBeInTheDocument()
+    expect(screen.getByText("Coordinator is creating a bounded mission plan.")).toBeInTheDocument()
+    expect(screen.getByText("Status: Analyzing")).toBeInTheDocument()
+  })
+
   it("shows the live mission status including failed on the team floor panel", () => {
     render(
       <WorkspaceSidebar

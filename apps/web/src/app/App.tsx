@@ -189,13 +189,22 @@ export function App() {
     liveRuntime,
     liveRuntime.session,
     missionSessions.data,
+    project.data?.id,
     setActivePanel,
   ])
+
+  useEffect(() => {
+    const status = liveRuntime.mission?.status
+    if (!status || !isTerminalMissionStatus(status) || !project.data?.id) return
+    void client.invalidateQueries({ queryKey: ["mission-sessions", project.data.id] })
+  }, [client, liveRuntime.mission?.status, project.data?.id])
 
   const selectedStaff =
     roster.find((profile) => profile.id === selectedStaffId) ?? roster[0] ?? null
 
   const onProjectOpened = (next: ProjectRecord) => {
+    liveRuntime.dismiss()
+    sessionRestoreStarted.current = false
     clearFiles()
     setProjectReferenceQuery(null)
     setStarterObjective(next.starterObjective ?? null)
@@ -223,6 +232,7 @@ export function App() {
           staffError={staff.error}
           runtimeStatus={runtimeStatus.data}
           mission={liveRuntime.mission}
+          isStarting={liveRuntime.isStarting}
           missionSessions={missionSessions.data ?? []}
           selectedMissionSessionId={liveRuntime.session?.id ?? null}
           projectId={project.data?.id ?? null}
@@ -251,9 +261,7 @@ export function App() {
     ? liveRuntime.mission.status
     : liveRuntime.projection.status
 
-  const soloWorkspace = !hasProject
-    || activePanel === "settings"
-    || activePanel === "staff"
+  const soloWorkspace = !hasProject || activePanel === "settings"
   const workspaceClass = [
     "mission-workspace",
     soloWorkspace ? "mission-workspace--no-project" : "",
@@ -327,7 +335,7 @@ export function App() {
           />
         )}
       </WorkspacePanelSwitch>
-      {hasProject && activePanel !== "settings" && activePanel !== "staff" && (
+      {hasProject && activePanel !== "settings" && (
         <ActivityFeed
           staff={roster}
           hasStarted={liveRuntime.hasStarted}
@@ -343,7 +351,7 @@ export function App() {
       activePanel={activePanel}
       onPanelChange={setActivePanel}
       projectOpen={hasProject}
-      hideTeamPanel={activePanel === "staff" || activePanel === "settings"}
+      hideTeamPanel={activePanel === "settings"}
       sidebar={sidebar}
       workspace={workspace}
       teamPanel={(

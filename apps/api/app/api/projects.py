@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -6,6 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from app.core.config import get_settings
 from app.schemas.projects import (
     ProjectEntry,
+    ProjectEntryCreateRequest,
+    ProjectEntryDeleteRequest,
+    ProjectEntryMoveRequest,
     ProjectFile,
     ProjectFileWriteRequest,
     ProjectOpenRequest,
@@ -20,7 +23,7 @@ from app.services.sample_project import (
     default_sample_template_dir,
     open_sample_project,
 )
-from app.tools.repository import WorkspaceError
+from app.tools.repository import WorkspaceEntryResult, WorkspaceError
 
 router = APIRouter(prefix="/api")
 
@@ -66,6 +69,14 @@ def get_sample_project_paths() -> SampleProjectPaths:
 
 Registry = Annotated[ProjectRegistry, Depends(get_project_registry)]
 SamplePaths = Annotated[SampleProjectPaths, Depends(get_sample_project_paths)]
+
+
+def _project_entry(result: WorkspaceEntryResult) -> ProjectEntry:
+    return ProjectEntry(
+        name=PurePosixPath(result["path"]).name,
+        path=result["path"],
+        kind=result["kind"],
+    )
 
 
 @router.post("/projects", response_model=ProjectRecord)
@@ -121,6 +132,60 @@ async def list_entries(
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Project not found") from exc
     except WorkspaceError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.post("/projects/{project_id}/entries", response_model=ProjectEntry)
+async def create_entry(
+    project_id: str,
+    request: ProjectEntryCreateRequest,
+    registry: Registry,
+) -> ProjectEntry:
+    try:
+        workspace = registry.workspace(project_id)
+        result = (
+            workspace.create_file(request.path)
+            if request.kind == "file"
+            else workspace.create_directory(request.path)
+        )
+        return _project_entry(result)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Project not found") from exc
+    except (WorkspaceError, OSError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.patch("/projects/{project_id}/entries", response_model=ProjectEntry)
+async def move_entry(
+    project_id: str,
+    request: ProjectEntryMoveRequest,
+    registry: Registry,
+) -> ProjectEntry:
+    try:
+        workspace = registry.workspace(project_id)
+        return _project_entry(
+            workspace.move(request.source_path, request.destination_path)
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Project not found") from exc
+    except (WorkspaceError, OSError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.delete("/projects/{project_id}/entries", response_model=ProjectEntry)
+async def delete_entry(
+    project_id: str,
+    request: ProjectEntryDeleteRequest,
+    registry: Registry,
+) -> ProjectEntry:
+    try:
+        workspace = registry.workspace(project_id)
+        return _project_entry(
+            workspace.delete_entry(request.path, recursive=request.recursive)
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Project not found") from exc
+    except (WorkspaceError, OSError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 

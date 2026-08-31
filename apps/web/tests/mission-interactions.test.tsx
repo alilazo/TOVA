@@ -252,6 +252,28 @@ describe("Mission interactions", () => {
     expect(onCancel).toHaveBeenCalledOnce()
   })
 
+  it.each([
+    "analyzing",
+    "awaiting_approval",
+    "running",
+    "testing",
+  ] satisfies MissionStatus[])("pauses an active mission instead of offering Resume for %s", (status) => {
+    render(
+      <MissionControlBar
+        title="Build runtime health"
+        playing={status === "running"}
+        paused={false}
+        status={status}
+        onPause={() => undefined}
+        onResume={() => undefined}
+        onCancel={() => undefined}
+      />,
+    )
+
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Resume" })).not.toBeInTheDocument()
+  })
+
   it("resumes a paused nonterminal mission", () => {
     const onResume = vi.fn()
     render(

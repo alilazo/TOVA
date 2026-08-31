@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { Button } from "@/components/ui/button"
@@ -38,6 +39,7 @@ function asCommandRequest(
 
 export function CommandApprovalDialog({ missionId }: { missionId?: string }) {
   const client = useQueryClient()
+  const approveRef = useRef<HTMLButtonElement>(null)
   const approvals = useQuery({
     queryKey: ["approvals", missionId],
     queryFn: () => listApprovals(missionId ?? ""),
@@ -65,7 +67,14 @@ export function CommandApprovalDialog({ missionId }: { missionId?: string }) {
 
   return (
     <Dialog open={Boolean(pending)}>
-      <DialogContent className="approval-dialog" showCloseButton={false}>
+      <DialogContent
+        className="approval-dialog"
+        showCloseButton={false}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          approveRef.current?.focus()
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
             {isDelete
@@ -150,6 +159,8 @@ export function CommandApprovalDialog({ missionId }: { missionId?: string }) {
             Reject
           </Button>
           <Button
+            ref={approveRef}
+            autoFocus
             disabled={resolve.isPending}
             onClick={() => resolve.mutate("accept")}
           >

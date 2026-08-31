@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 vi.mock("@monaco-editor/react", () => ({
   default: ({
@@ -34,8 +34,13 @@ vi.mock("@/features/projects/project-api", () => ({
 }))
 
 import { CodeWorkspace } from "@/components/editor/CodeWorkspace"
+import { useUiStore } from "@/stores/ui-store"
 
 describe("CodeWorkspace project switch", () => {
+  beforeEach(() => {
+    useUiStore.getState().clearFiles()
+  })
+
   it("discards editor drafts when the project changes", async () => {
     const user = userEvent.setup()
     const client = new QueryClient({
@@ -60,7 +65,14 @@ describe("CodeWorkspace project switch", () => {
     await user.clear(editor)
     await user.type(editor, "DRAFT_A")
     expect(editor).toHaveValue("DRAFT_A")
+    expect(useUiStore.getState().draftByPath).toEqual({
+      "index.html": "DRAFT_A",
+    })
+    expect(useUiStore.getState().dirtyPaths).toEqual({
+      "index.html": true,
+    })
 
+    act(() => useUiStore.getState().clearFiles())
     view.rerender(
       <QueryClientProvider client={client}>
         <CodeWorkspace
@@ -77,5 +89,7 @@ describe("CodeWorkspace project switch", () => {
 
     expect(await screen.findByLabelText("File editor")).toHaveValue("FROM_B")
     expect(screen.queryByDisplayValue("DRAFT_A")).not.toBeInTheDocument()
+    expect(useUiStore.getState().draftByPath).toEqual({})
+    expect(useUiStore.getState().dirtyPaths).toEqual({})
   })
 })

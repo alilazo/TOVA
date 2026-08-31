@@ -26,6 +26,15 @@ def test_loads_all_seven_profiles_and_compiles_safe_prompt() -> None:
     assert "explicit user approval" in prompt
 
 
+def test_lina_description_is_not_react_only() -> None:
+    root = Path(__file__).parents[3] / "HiPo-Staff" / "staff"
+    profiles = StaffProfileRepository(root).load_all()
+    lina = next(profile for profile in profiles if profile.id == "staff_lina")
+
+    assert "React" not in lina.description
+    assert "HTML" in lina.description or "front-end" in lina.description.lower()
+
+
 def test_ava_prompt_requires_strict_qa_report_template() -> None:
     root = Path(__file__).parents[3] / "HiPo-Staff" / "staff"
     profiles = StaffProfileRepository(root).load_all()

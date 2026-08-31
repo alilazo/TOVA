@@ -147,12 +147,16 @@ describe("App HiPo Staff directory", () => {
     mocks.getStaffProfiles.mockResolvedValue([])
   })
 
-  it("renders staff directory in the main workspace and hides the engineering rail", async () => {
+  it("renders the staff roster without stripping the engineering rail", async () => {
+    mocks.getActiveProject.mockResolvedValue({
+      id: "project_1",
+      name: "Demo",
+      root: "F:\\Projects\\demo",
+    })
     renderApp()
     expect(await screen.findByTestId("staff-directory")).toBeInTheDocument()
-    expect(screen.queryByTestId("engineering-team")).not.toBeInTheDocument()
+    expect(screen.getByTestId("engineering-team")).toBeInTheDocument()
     expect(screen.queryByTestId("code-workspace")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("workspace-sidebar")).not.toBeInTheDocument()
   })
 
   it("keeps staff available without a project", async () => {

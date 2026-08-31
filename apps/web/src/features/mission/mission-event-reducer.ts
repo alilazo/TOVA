@@ -449,6 +449,11 @@ export function missionEventReducer(
       staffStatuses: Object.fromEntries(
         next.selectedStaffIds.map((staffId) => [staffId, "completed"]),
       ),
+      activity: next.activity.map((item) => (
+        item.status === "completed" || item.status === "failed" || item.status === "blocked"
+          ? item
+          : { ...item, status: "completed" }
+      )),
     }
   }
 

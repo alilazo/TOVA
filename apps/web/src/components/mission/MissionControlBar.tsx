@@ -65,12 +65,12 @@ export function MissionControlBar({
           <>
             <Button
               size="sm"
-              onClick={paused || !playing ? onResume : onPause}
+              onClick={paused ? onResume : onPause}
             >
-              {paused || !playing
+              {paused
                 ? <Play data-icon="inline-start" />
                 : <Pause data-icon="inline-start" />}
-              {paused || !playing ? "Resume" : "Pause"}
+              {paused ? "Resume" : "Pause"}
             </Button>
             <Button
               variant="outline"

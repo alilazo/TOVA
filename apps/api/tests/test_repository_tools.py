@@ -105,6 +105,175 @@ def test_deletes_single_file_and_rejects_directories(tmp_path: Path) -> None:
         workspace.delete("subdir")
 
 
+def test_creates_files_and_directories_without_overwriting(tmp_path: Path) -> None:
+    workspace = ProjectWorkspace(tmp_path)
+
+    assert workspace.create_directory("src") == {"path": "src", "kind": "dir"}
+    assert workspace.create_file("src/main.ts") == {
+        "path": "src/main.ts",
+        "kind": "file",
+    }
+    assert (tmp_path / "src" / "main.ts").read_text(encoding="utf-8") == ""
+
+    with pytest.raises(WorkspaceError, match="already exists"):
+        workspace.create_file("src/main.ts")
+
+
+def test_moves_populated_directory_without_overwriting(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "main.ts").write_text("export {}", encoding="utf-8")
+    (tmp_path / "app").mkdir()
+    workspace = ProjectWorkspace(tmp_path)
+
+    assert workspace.move("src", "app/source") == {
+        "path": "app/source",
+        "kind": "dir",
+    }
+    assert (tmp_path / "app" / "source" / "main.ts").is_file()
+    assert not (tmp_path / "src").exists()
+
+
+def test_renames_file_changing_only_letter_case(tmp_path: Path) -> None:
+    (tmp_path / "Readme.md").write_text("notes", encoding="utf-8")
+    workspace = ProjectWorkspace(tmp_path)
+
+    assert workspace.move("Readme.md", "readme.md") == {
+        "path": "readme.md",
+        "kind": "file",
+    }
+    assert any(path.name == "readme.md" for path in tmp_path.iterdir())
+    assert (tmp_path / "readme.md").read_text(encoding="utf-8") == "notes"
+
+
+def test_requires_recursive_confirmation_for_nonempty_directory(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "main.ts").write_text("export {}", encoding="utf-8")
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="recursive confirmation"):
+        workspace.delete_entry("src", recursive=False)
+
+    assert workspace.delete_entry("src", recursive=True) == {
+        "path": "src",
+        "kind": "dir",
+    }
+    assert not (tmp_path / "src").exists()
+
+
+def test_deletes_file_and_empty_directory_without_recursive_confirmation(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "notes.txt").write_text("safe", encoding="utf-8")
+    (tmp_path / "empty").mkdir()
+    workspace = ProjectWorkspace(tmp_path)
+
+    assert workspace.delete_entry("notes.txt", recursive=False) == {
+        "path": "notes.txt",
+        "kind": "file",
+    }
+    assert workspace.delete_entry("empty", recursive=False) == {
+        "path": "empty",
+        "kind": "dir",
+    }
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ".",
+        "../outside.txt",
+        "missing/main.ts",
+        "CON",
+        "name.",
+        "name ",
+        "bad<name",
+        "bad>name",
+        'bad"name',
+        "bad:name",
+        "bad/name",
+        "bad\\name",
+        "bad|name",
+        "bad?name",
+        "bad*name",
+        ".git/config",
+    ],
+)
+def test_create_file_rejects_unsafe_or_unavailable_paths(
+    tmp_path: Path,
+    path: str,
+) -> None:
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError):
+        workspace.create_file(path)
+
+
+def test_rejects_raw_backslash_when_its_apparent_parent_exists(tmp_path: Path) -> None:
+    (tmp_path / "bad").mkdir()
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="invalid file or folder name"):
+        workspace.create_file("bad\\name")
+
+
+def test_mutations_reject_missing_sources_parents_and_collisions(tmp_path: Path) -> None:
+    (tmp_path / "source.txt").write_text("source", encoding="utf-8")
+    (tmp_path / "destination.txt").write_text("destination", encoding="utf-8")
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="does not exist"):
+        workspace.move("missing.txt", "moved.txt")
+    with pytest.raises(WorkspaceError, match="parent directory"):
+        workspace.create_directory("missing/child")
+    with pytest.raises(WorkspaceError, match="parent directory"):
+        workspace.move("source.txt", "missing/moved.txt")
+    with pytest.raises(WorkspaceError, match="already exists"):
+        workspace.move("source.txt", "destination.txt")
+
+
+def test_rejects_moving_directory_into_its_descendant(tmp_path: Path) -> None:
+    (tmp_path / "src").mkdir()
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="into itself"):
+        workspace.move("src", "src/nested")
+
+
+@pytest.mark.parametrize("root_path", [".", "./", ".\\"])
+@pytest.mark.parametrize("operation", ["create", "move-source", "move-destination", "delete"])
+def test_mutations_reject_project_root(
+    tmp_path: Path,
+    operation: str,
+    root_path: str,
+) -> None:
+    (tmp_path / "source.txt").write_text("source", encoding="utf-8")
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="root cannot be changed"):
+        if operation == "create":
+            workspace.create_directory(root_path)
+        elif operation == "move-source":
+            workspace.move(root_path, "moved")
+        elif operation == "move-destination":
+            workspace.move("source.txt", root_path)
+        else:
+            workspace.delete_entry(root_path, recursive=True)
+
+
+def test_mutations_reject_symbolic_link_segments(tmp_path: Path) -> None:
+    outside = tmp_path.parent / f"{tmp_path.name}-outside"
+    outside.mkdir()
+    link = tmp_path / "linked"
+    try:
+        link.symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("Symbolic links are unavailable on this platform")
+    workspace = ProjectWorkspace(tmp_path)
+
+    with pytest.raises(WorkspaceError, match="Symbolic-link"):
+        workspace.create_file("linked/escape.txt")
+
+
 def test_registry_delete_tool_unlinks_file(tmp_path: Path) -> None:
     (tmp_path / "bye.txt").write_text("x", encoding="utf-8")
     registry = RepositoryToolRegistry(ProjectWorkspace(tmp_path))

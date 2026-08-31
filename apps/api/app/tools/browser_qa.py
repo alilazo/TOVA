@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.core.paths import browser_audit_script
 from app.schemas.approvals import (
+    ApprovalRecord,
     ApprovalStatus,
     BrowserAuditRequest,
     BrowserAuditResult,
@@ -37,6 +38,11 @@ BrowserAuditExecutor = Callable[
     Awaitable["BrowserAuditExecution"],
 ]
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
+_REUSED_BROWSER_AUDIT_STATUSES = frozenset({
+    ApprovalStatus.ACCEPTED,
+    ApprovalStatus.EXECUTING,
+    ApprovalStatus.EXECUTED,
+})
 
 
 async def _no_events(_event_type: str, _payload: dict[str, Any]) -> None:
@@ -75,6 +81,9 @@ class _ManagedStaticServer:
         self._thread.join(timeout=2)
 
 
+_STATIC_SERVERS: dict[str, _ManagedStaticServer] = {}
+
+
 class ApprovedBrowserAuditRunner:
     def __init__(
         self,
@@ -100,72 +109,90 @@ class ApprovedBrowserAuditRunner:
 
         static_server = self._managed_static_server_for(request)
         if static_server is not None:
-            static_server.start()
             request = request.model_copy(update={"url": static_server.url})
 
+        reusable = self._reusable_browser_audit(request)
+        if reusable is not None:
+            return await self._execute_approved(reusable.id, request)
+
+        approval = await self.approvals.request(request)
+        await self.event_sink(
+            "approval.requested",
+            {
+                "approval_id": approval.id,
+                "kind": "browser_audit",
+                "staff_id": request.staff_id,
+                "staff_display_name": request.staff_display_name,
+                "url": request.url,
+                "purpose": request.purpose,
+                "acceptance_criteria": request.acceptance_criteria,
+            },
+        )
+        decision = await self.approvals.wait_for_decision(approval.id)
+        if decision == ApprovalStatus.REJECTED:
+            await self.event_sink("approval.rejected", {"approval_id": approval.id})
+            return BrowserAuditResult(
+                approval_id=approval.id,
+                rejected=True,
+                url=request.url,
+            )
+
+        await self.event_sink("approval.accepted", {"approval_id": approval.id})
+        return await self._execute_approved(approval.id, request)
+
+    async def _execute_approved(
+        self,
+        approval_id: str,
+        request: BrowserAuditRequest,
+    ) -> BrowserAuditResult:
+        self.approvals.set_status(approval_id, ApprovalStatus.EXECUTING)
+        await self.event_sink(
+            "staff.test.started",
+            {
+                "tool": "qa.browser.audit",
+                "url": request.url,
+                "purpose": request.purpose,
+                "status": "testing",
+            },
+        )
+
+        started = time.perf_counter()
+        output_dir = self._artifact_dir(approval_id)
         try:
-            approval = await self.approvals.request(request)
-            await self.event_sink(
-                "approval.requested",
-                {
-                    "approval_id": approval.id,
-                    "kind": "browser_audit",
-                    "staff_id": request.staff_id,
-                    "staff_display_name": request.staff_display_name,
-                    "url": request.url,
-                    "purpose": request.purpose,
-                    "acceptance_criteria": request.acceptance_criteria,
-                },
+            execution = await asyncio.wait_for(
+                self.executor(request, output_dir),
+                timeout=self.timeout_seconds,
             )
-            decision = await self.approvals.wait_for_decision(approval.id)
-            if decision == ApprovalStatus.REJECTED:
-                await self.event_sink("approval.rejected", {"approval_id": approval.id})
-                return BrowserAuditResult(
-                    approval_id=approval.id,
-                    rejected=True,
-                    url=request.url,
-                )
-
-            await self.event_sink("approval.accepted", {"approval_id": approval.id})
-            self.approvals.set_status(approval.id, ApprovalStatus.EXECUTING)
-            await self.event_sink(
-                "staff.test.started",
-                {
-                    "tool": "qa.browser.audit",
-                    "url": request.url,
-                    "purpose": request.purpose,
-                    "status": "testing",
-                },
-            )
-
-            started = time.perf_counter()
-            output_dir = self._artifact_dir(approval.id)
-            try:
-                execution = await asyncio.wait_for(
-                    self.executor(request, output_dir),
-                    timeout=self.timeout_seconds,
-                )
-            except TimeoutError:
-                self.approvals.set_status(approval.id, ApprovalStatus.FAILED)
-                result = BrowserAuditResult(
-                    approval_id=approval.id,
-                    url=request.url,
-                    verdict="blocked",
-                    error="Browser audit timed out",
-                )
-                await self._emit_result(result, started)
-                return result
-
-            result = self._result_from_execution(approval.id, request.url, execution)
-            self.approvals.set_status(
-                approval.id,
-                ApprovalStatus.EXECUTED if result.error is None else ApprovalStatus.FAILED,
+        except TimeoutError:
+            self.approvals.set_status(approval_id, ApprovalStatus.FAILED)
+            result = BrowserAuditResult(
+                approval_id=approval_id,
+                url=request.url,
+                verdict="blocked",
+                error="Browser audit timed out",
             )
             await self._emit_result(result, started)
             return result
-        finally:
-            if static_server is not None:
-                await asyncio.to_thread(static_server.close)
+
+        result = self._result_from_execution(approval_id, request.url, execution)
+        self.approvals.set_status(
+            approval_id,
+            ApprovalStatus.EXECUTED if result.error is None else ApprovalStatus.FAILED,
+        )
+        await self._emit_result(result, started)
+        return result
+
+    def _reusable_browser_audit(
+        self,
+        request: BrowserAuditRequest,
+    ) -> ApprovalRecord | None:
+        for record in self.approvals.list_for_mission(request.mission_id):
+            if (
+                record.request.kind == "browser_audit"
+                and record.status in _REUSED_BROWSER_AUDIT_STATUSES
+            ):
+                return record
+        return None
 
     def _artifact_dir(self, approval_id: str) -> Path:
         path = self.workspace.root / ".tova" / "browser-audits" / approval_id
@@ -182,7 +209,14 @@ class ApprovedBrowserAuditRunner:
             or not (self.workspace.root / "index.html").exists()
         ):
             return None
-        return _ManagedStaticServer(self.workspace.root)
+        key = str(self.workspace.root.resolve())
+        existing = _STATIC_SERVERS.get(key)
+        if existing is not None:
+            return existing
+        server = _ManagedStaticServer(self.workspace.root)
+        server.start()
+        _STATIC_SERVERS[key] = server
+        return server
 
     def _result_from_execution(
         self,

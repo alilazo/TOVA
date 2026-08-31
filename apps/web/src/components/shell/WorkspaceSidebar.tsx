@@ -50,6 +50,7 @@ interface WorkspaceSidebarProps {
   onSelectMissionSession?: (sessionId: string) => void
   projectId?: string | null
   onOpenFile?: (path: string) => void
+  isStarting?: boolean
 }
 
 function titleCase(value: string) {
@@ -63,6 +64,7 @@ function panelItems({
   staff,
   runtimeStatus,
   mission,
+  isStarting = false,
 }: WorkspaceSidebarProps): string[] {
   if (panel === "search") return []
 
@@ -73,6 +75,12 @@ function panelItems({
   }
 
   if (panel === "team-floor") {
+    if (isStarting && !mission) {
+      return [
+        "Coordinator is creating a bounded mission plan.",
+        "Status: Analyzing",
+      ]
+    }
     return mission
       ? [
           mission.objective,

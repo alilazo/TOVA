@@ -57,6 +57,7 @@ export function useLiveRuntime() {
   const [session, setSession] = useState<MissionSessionRecord | null>(null)
   const [projection, setProjection] = useState(createInitialMissionProjection)
   const [error, setError] = useState<string | null>(null)
+  const [isStarting, setIsStarting] = useState(false)
   const socketRef = useRef<WebSocket | null>(null)
   const reconnectRef = useRef<number | null>(null)
   const connectRef = useRef<(missionId: string) => Promise<void>>(() => Promise.resolve())
@@ -152,6 +153,7 @@ export function useLiveRuntime() {
 
   const start = useCallback(async (input: LiveMissionInput) => {
     setError(null)
+    setIsStarting(true)
     try {
       const created = await createMissionSession({
         prompt: input.request,
@@ -163,12 +165,15 @@ export function useLiveRuntime() {
       await launchSessionTurn(created)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to start live mission")
+    } finally {
+      setIsStarting(false)
     }
   }, [launchSessionTurn])
 
   const sendFollowUp = useCallback(async (input: LiveMissionInput) => {
     if (!session) return
     setError(null)
+    setIsStarting(true)
     try {
       const updated = await appendMissionSessionTurn({
         sessionId: session.id,
@@ -180,6 +185,8 @@ export function useLiveRuntime() {
       await launchSessionTurn(updated)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to send follow-up")
+    } finally {
+      setIsStarting(false)
     }
   }, [launchSessionTurn, session])
 
@@ -227,6 +234,7 @@ export function useLiveRuntime() {
     setSession(null)
     setProjection(createInitialMissionProjection())
     setError(null)
+    setIsStarting(false)
   }, [clearReconnect])
 
   return {
@@ -234,7 +242,8 @@ export function useLiveRuntime() {
     session,
     projection,
     error,
-    hasStarted: mission !== null,
+    isStarting,
+    hasStarted: mission !== null || isStarting,
     playing: mission?.status === "running",
     paused: mission?.status === "paused",
     start,
