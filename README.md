@@ -13,7 +13,7 @@
 
 **Team-Orchestrated Visual Agents**
 
-> Taking your local LLM code to the next level.
+> You're own private local LLM Software Engineering Team.
 
 A local-first development environment for people who run their own models
 and want a full software team on the other side of the prompt — not one
